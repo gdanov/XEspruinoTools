@@ -3,7 +3,7 @@ require('es6-shim');
 var fs = require("fs");
 
 /* load all files in EspruinoTools... we do this so we can still
-use these files normally in the Web IDE */
+	 use these files normally in the Web IDE */
 function loadJS(filePath) {
   console.log("Found "+filePath);
   var contents = fs.readFileSync(filePath, {encoding:"utf8"});
@@ -13,7 +13,7 @@ function loadJS(filePath) {
   exports = realExports; // utf8 lib somehow breaks this
   return r;
   /* the code below would be better, but it doesn't seem to work when running
-   CLI - works fine when running as a module. */
+		 CLI - works fine when running as a module. */
   //return require("vm").runInThisContext(contents, filePath );
 }
 function loadDir(dir) {
@@ -101,8 +101,8 @@ function init(callback) {
 };
 
 /** Initialise EspruinoTools and call the callback.
- When the callback is called, the global variable 'Espruino'
- will then contain everything that's needed to use EspruinoTools */
+		When the callback is called, the global variable 'Espruino'
+		will then contain everything that's needed to use EspruinoTools */
 exports.init = init;
 
 /** Send a file to an Espruino on the given port, call the callback when done */
@@ -120,7 +120,7 @@ function sendCode(port, code, callback) {
       data = new Uint8Array(data);
       for (var i=0;i<data.length;i++)
         response += String.fromCharCode(data[i]);
-     });
+    });
     Espruino.Core.Serial.open(port, function(status) {
       if (status === undefined) {
         console.error("Unable to connect!");
@@ -212,3 +212,18 @@ exports.flash = function(port, filename, flashOffset, callback) {
     });
   });
 };
+
+exports.transformCode = function (code, cb){
+	let log=console.log;
+	console.log=function(){};
+	
+	init (function (){
+		console.log=log;
+		
+		Espruino.callProcessor("transformForEspruino", code, function(code) {
+			//console.log(">>>>>>>", code);
+			// use callbacks :(
+			cb (code)
+		})})
+	
+}
